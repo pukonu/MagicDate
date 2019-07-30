@@ -4,7 +4,8 @@
   "description": "A simple date utility for javascript",
   "main": "MagicDate.js",
   "scripts": {
-    "test": "jest --watchAll",
+    "test": "jest --forceExit --detectOpenHandles",
+    "watch-test": "jest --watchAll",
     "build": "tsc MagicDate.ts"
   },
   "repository": {
