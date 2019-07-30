@@ -1,0 +1,37 @@
+{
+  "name": "magic-date",
+  "version": "1.0.2",
+  "description": "A simple date utility for javascript",
+  "main": "MagicDate.js",
+  "scripts": {
+    "test": "jest --watchAll",
+    "build": "tsc MagicDate.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pukonu/MagicDate.git"
+  },
+  "keywords": [
+    "javascript",
+    "date",
+    "nodejs"
+  ],
+  "author": "Peter Ukonu <pukonu@gmail.com>",
+  "license": "Apache 2.0",
+  "bugs": {
+    "url": "https://github.com/pukonu/MagicDate/issues"
+  },
+  "homepage": "https://github.com/pukonu/MagicDate#readme",
+  "devDependencies": {
+    "@babel/core": "^7.3.4",
+    "@babel/preset-env": "^7.3.4",
+    "@babel/preset-typescript": "^7.3.3",
+    "@types/jquery": "3.3.6",
+    "@types/node": "^11.10.5",
+    "babel-jest": "^24.1.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-stage-0": "^6.24.1",
+    "babel-register": "^6.26.0",
+    "jest": "^24.1.0"
+  }
+}
