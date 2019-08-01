@@ -68,9 +68,21 @@ class MagicDate {
             if (dateFactoryConfig.dt) {
                 dateObject.dtObj = new Date(dateFactoryConfig.dt);
             } else {
-                for (let value of ["year", "month", "day", "hour", "min", "sec"]) {}
+                for (let value of["year",
+                    "month",
+                    "day",
+                    "hour",
+                    "min",
+                    "sec"]) {}
                 const __dateObject = new SimpleDateInterface();
-                ["year", "month", "day", "hour", "min", "sec"].map((v) => {
+                [
+                    "year",
+                    "month",
+                    "day",
+                    "hour",
+                    "min",
+                    "sec"
+                ].map((v) => {
                     const validityError = MagicDate.validateDateConfig(parseInt(eval(dateFactoryConfig[v])), v);
                     if (validityError) {
                         throw new Error(validityError);
@@ -80,10 +92,12 @@ class MagicDate {
                 dateObject.dtObj = new Date(__dateObject.year, __dateObject.month - 1, __dateObject.day, __dateObject.hour, __dateObject.min, __dateObject.sec);
             }
         } catch (e) {
-            console.error("To make a new date, you must pass in the year month and " +
-                "day into the makeDate function arguments");
+            console.error("To make a new date, you must pass in the year month and day into the makeDate fu" +
+                    "nction arguments");
         }
-        dateObject._toNumber()._analyseDateTime();
+        dateObject
+            ._toNumber()
+            ._analyseDateTime();
         return dateObject;
     }
     /**
@@ -100,10 +114,13 @@ class MagicDate {
         $weekStart = $weekStart || MagicDate.DEFAULT_WEEK_START;
         const dateArray = [];
         // check if date is in correct order and throw exception if not
-        if (!MagicDate.validateDatePosition($start, $end))
+        if (!MagicDate.validateDatePosition($start, $end)) 
             throw new Error(MagicDate.EXCEPTIONS.dateRangeOrderException);
+        
         // a caveat to include end date when return a dates between 2 dates
-        const endDatePadding = $includeEndDate ? MagicDate.timeMult($abstraction) : 0;
+        const endDatePadding = $includeEndDate
+            ? MagicDate.timeMult($abstraction)
+            : 0;
         let i = startNumeric;
         while (i <= endNumeric + endDatePadding) {
             const __dateObject = new SimpleDateInterface();
@@ -124,7 +141,9 @@ class MagicDate {
         __dateObject.month = 1;
         __dateObject.day = 1;
         const dateObject = MagicDate.makeDate(__dateObject);
-        return dateObject.next(`${$weekNum - 1} weeks`).getWeekFirstDate();
+        return dateObject
+            .next(`${$weekNum - 1} weeks`)
+            .getWeekFirstDate();
     }
     /**
      * A function to get an array of dates of a given week number
@@ -136,7 +155,9 @@ class MagicDate {
      */
     static getDatesFromWeekNum($weekNum, $year = null, $abstraction = "day", $weekStart = null, $includeEndDate = false) {
         const $start = MagicDate.getDateFromWeekNum($weekNum, $year);
-        const $end = MagicDate.getDateFromWeekNum($weekNum, $year).getWeekLastDate();
+        const $end = MagicDate
+            .getDateFromWeekNum($weekNum, $year)
+            .getWeekLastDate();
         return MagicDate.getDateFromTo($start, $end, $abstraction, $weekStart, $includeEndDate);
     }
     /**
@@ -159,10 +180,7 @@ class MagicDate {
                 year++;
                 weekNum = 1;
             }
-            weekArray.push({
-                year,
-                weekNum
-            });
+            weekArray.push({year, weekNum});
             weekNum++;
             i++;
         }
@@ -219,7 +237,9 @@ class MagicDate {
      */
     static getMonthLength(year, month) {
         const __monthLabel = MagicDate.MONTHS[month - 1];
-        return MagicDate.isLeapYear(year) ? __monthLabel.length + 1 : __monthLabel.length;
+        return MagicDate.isLeapYear(year)
+            ? __monthLabel.length + 1
+            : __monthLabel.length;
     }
     /**
      * A boolean function to check the positions of 2 dates,
@@ -232,13 +252,16 @@ class MagicDate {
         __dateObjectA.dt = a;
         const __dateObjectB = new SimpleDateInterface();
         __dateObjectB.dt = b;
-        return MagicDate.makeDate(__dateObjectA).dtTime <= MagicDate.makeDate(__dateObjectB).dtTime;
+        return MagicDate
+            .makeDate(__dateObjectA)
+            .dtTime <= MagicDate
+            .makeDate(__dateObjectB)
+            .dtTime;
     }
     static validateDateConfig(value, type) {
         const __dateObject = new SimpleDateInterface();
         value = value || __dateObject[value];
-        if (value < MagicDate.CONFIG_BOUNDARIES[`${type}_boundary`][0] ||
-            value > MagicDate.CONFIG_BOUNDARIES[`${type}_boundary`][1]) {
+        if (value < MagicDate.CONFIG_BOUNDARIES[`${type}_boundary`][0] || value > MagicDate.CONFIG_BOUNDARIES[`${type}_boundary`][1]) {
             return `The argument entered for ${type}: ${value} is out of the MagicDate scope`;
         }
         return null;
@@ -267,22 +290,27 @@ class MagicDate {
     }
     static padding(value, len, paddingStr) {
         len = len - value.length + 1;
-        return len > 0 ?
-            new Array(len).join(paddingStr) + value : value;
+        return len > 0
+            ? new Array(len).join(paddingStr) + value
+            : value;
     }
     /**
      * Generate current time
      */
     now() {
         this.dtObj = new Date();
-        this._toNumber()._analyseDateTime();
+        this
+            ._toNumber()
+            ._analyseDateTime();
         return this;
     }
     /**
      * Get todays date
      */
     today() {
-        this.dtObj.getDate();
+        this
+            .dtObj
+            .getDate();
         return this;
     }
     /**
@@ -296,7 +324,7 @@ class MagicDate {
      * Last date of a week
      */
     getWeekLastDate() {
-        this.next(`${(6 - this.weekdayNumeric)} days`);
+        this.next(`${ (6 - this.weekdayNumeric)} days`);
         return this;
     }
     /**
@@ -316,10 +344,9 @@ class MagicDate {
      */
     getWeekNum() {
         const januaryFirst = new Date(this.year, 0, 1);
-        const v = (this.dtTime / MagicDate.timeMult(MagicDate.LABELS.day)) -
-            (januaryFirst.getTime() / MagicDate.timeMult(MagicDate.LABELS.day)) +
-            januaryFirst.getDay() -
-            (this.weekStart.name === MagicDate.DEFAULT_WEEK_START.name ? 1 : 0);
+        const v = (this.dtTime / MagicDate.timeMult(MagicDate.LABELS.day)) - (januaryFirst.getTime() / MagicDate.timeMult(MagicDate.LABELS.day)) + januaryFirst.getDay() - (this.weekStart.name === MagicDate.DEFAULT_WEEK_START.name
+            ? 1
+            : 0);
         return Math.floor(v / 7) + 1;
     }
     /**
@@ -338,13 +365,17 @@ class MagicDate {
      * @param command
      */
     next(command) {
-        let [value, abstraction] = command.split(" ");
+        let [value,
+            abstraction] = command.split(" ");
         let valueInt = parseInt(value);
-        const polarity = valueInt >= 0 ? 1 : -1;
-        // 3 years, 4 months,  2 weeks, 7 days, 1 month, 5 weeks, 1 hour, 4 minutes, 32 seconds
-        abstraction = (abstraction.substr(-1, 1) === "s") ?
-            abstraction.substring(0, abstraction.length - 1) :
-            abstraction;
+        const polarity = valueInt >= 0
+            ? 1
+            : -1;
+        // 3 years, 4 months,  2 weeks, 7 days, 1 month, 5 weeks, 1 hour, 4 minutes, 32
+        // seconds
+        abstraction = (abstraction.substr(-1, 1) === "s")
+            ? abstraction.substring(0, abstraction.length - 1)
+            : abstraction;
         // normalize the minute and second entry to conform to out nomenclature
         switch (abstraction) {
             case "minute":
@@ -371,7 +402,8 @@ class MagicDate {
                 day: this.day
             };
             const monthLength = MagicDate.getMonthLength(__simpleDate.year, __simpleDate.month);
-            // correct date based on month length - e.g. if 31 appears on a November, will be changed to 30
+            // correct date based on month length - e.g. if 31 appears on a November, will
+            // be changed to 30
             if (monthLength < this.day) {
                 __simpleDate.day = monthLength;
             }
@@ -379,7 +411,9 @@ class MagicDate {
         } else {
             this.dtTime = this.dtTime + (valueInt * MagicDate.timeMult(abstraction));
         }
-        this._formatFromNumericTime()._analyseDateTime();
+        this
+            ._formatFromNumericTime()
+            ._analyseDateTime();
         return this;
     }
     /**
@@ -433,9 +467,13 @@ class MagicDate {
         return MagicDate.isLeapYear(this.year);
     }
     _toNumber() {
-        const _dt = this.dtObj.getTime() + (-1 * new Date().getTimezoneOffset() * MagicDate.timeMult("min")) - (1000 * 60 * 30);
+        const _dt = this
+            .dtObj
+            .getTime() + (-1 * new Date().getTimezoneOffset() * MagicDate.timeMult("min")) - (1000 * 60 * 30);
         this.dtObj = new Date(_dt);
-        this.dtTime = this.dtObj.getTime();
+        this.dtTime = this
+            .dtObj
+            .getTime();
         return this;
     }
     _formatFromNumericTime() {
@@ -463,8 +501,12 @@ class MagicDate {
     }
     _analyseDateTime() {
         try {
-            const isoDate = this.dtObj.toISOString();
-            this.weekdayNumeric = this.dtObj.getDay();
+            const isoDate = this
+                .dtObj
+                .toISOString();
+            this.weekdayNumeric = this
+                .dtObj
+                .getDay();
             this.weekday = MagicDate.WEEKDAYS[this.weekdayNumeric];
             this.year = parseInt(isoDate.substring(0, 4));
             this.month = parseInt(isoDate.substring(5, 7));
@@ -485,117 +527,102 @@ class MagicDate {
 /**
  * Dictionary of month definitions
  */
-MagicDate.MONTHS = [{
+MagicDate.MONTHS = [
+    {
         code: "01",
         shortName: "Jan",
         length: 31,
         name: "January"
-    },
-    {
+    }, {
         code: "02",
         shortName: "Feb",
         length: 28,
         name: "February"
-    },
-    {
+    }, {
         code: "03",
         shortName: "Mar",
         length: 31,
         name: "March"
-    },
-    {
+    }, {
         code: "04",
         shortName: "Apr",
         length: 30,
         name: "April"
-    },
-    {
+    }, {
         code: "05",
         shortName: "May",
         length: 31,
         name: "May"
-    },
-    {
+    }, {
         code: "06",
         shortName: "Jun",
         length: 30,
         name: "June"
-    },
-    {
+    }, {
         code: "07",
         shortName: "Jul",
         length: 31,
         name: "July"
-    },
-    {
+    }, {
         code: "08",
         shortName: "Aug",
         length: 31,
         name: "August"
-    },
-    {
+    }, {
         code: "09",
         shortName: "Sep",
         length: 30,
         name: "September"
-    },
-    {
+    }, {
         code: "10",
         shortName: "Oct",
         length: 31,
         name: "October"
-    },
-    {
+    }, {
         code: "11",
         shortName: "Nov",
         length: 30,
         name: "November"
-    },
-    {
+    }, {
         code: "12",
         shortName: "Dec",
         length: 31,
         name: "December"
-    },
+    }
 ];
 /**
  * Dictionary of weekday definitions
  */
-MagicDate.WEEKDAYS = [{
+MagicDate.WEEKDAYS = [
+    {
         code: "01",
         shortName: "Sun",
         name: "Sunday"
-    },
-    {
+    }, {
         code: "02",
         shortName: "Mon",
         name: "Monday"
-    },
-    {
+    }, {
         code: "03",
         shortName: "Tue",
         name: "Tuesday"
-    },
-    {
+    }, {
         code: "04",
         shortName: "Wed",
         name: "Wednesday"
-    },
-    {
+    }, {
         code: "05",
         shortName: "Thu",
         name: "Thursday"
-    },
-    {
+    }, {
         code: "06",
         shortName: "Fri",
         name: "Friday"
-    },
-    {
+    }, {
         code: "07",
         shortName: "Sat",
         name: "Saturday"
-    },
+    }
 ];
 /**
  * Default start date of the week
@@ -605,18 +632,28 @@ MagicDate.DEFAULT_WEEK_START = MagicDate.WEEKDAYS[0];
  * Boundaries for configuration
  */
 MagicDate.CONFIG_BOUNDARIES = {
-    year_boundary: [1900, 2100],
-    month_boundary: [1, 12],
-    day_boundary: [1, 31],
-    hour_boundary: [0, 23],
-    min_boundary: [0, 59],
+    year_boundary: [
+        1900, 2100
+    ],
+    month_boundary: [
+        1, 12
+    ],
+    day_boundary: [
+        1, 31
+    ],
+    hour_boundary: [
+        0, 23
+    ],
+    min_boundary: [
+        0, 59
+    ],
     sec_boundary: [0, 59]
 };
 /**
  * Generic labels
  */
 MagicDate.LABELS = {
-    day: "day",
+    day: "day"
 };
 /**
  * Mask dictionary for date variables
@@ -628,13 +665,15 @@ MagicDate.MASK_DICTIONARY = {
     H: 'hour',
     i: 'minute',
     s: 'second',
-    u: 'microSecond',
+    u: 'microSecond'
 };
 /**
  * Expection dictionary
  */
 MagicDate.EXCEPTIONS = {
-    dateRangeOrderException: "You tried to get an array of dates between 2 dates, but the start date selected seems to be ahead of the end date",
+    dateRangeOrderException: "You tried to get an array of dates between 2 dates, but the start date selected " +
+            "seems to be ahead of the end date",
     valueException: "Argument parsed failed to process"
 };
+
 module.exports = MagicDate;
