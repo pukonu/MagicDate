@@ -732,8 +732,8 @@ class MagicDate implements DateInterface {
 
         if (this._castMask) {
             let __ret = this._castMask;
-            // const keywords = __ret.match(/(?<=%)[A-Za-z]/g)
-            // keywords && keywords.map(k => __ret = __ret.replace(`%${k}`, eval(`${MagicDate.MASK_DICTIONARY[k]}Str`)))
+            const keywords = __ret.match(/[A-Za-z]/g)
+            keywords && keywords.map(k => __ret = __ret.replace(`%${k}`, eval(`${MagicDate.MASK_DICTIONARY[k]}Str`)))
             return __ret
         }
 
