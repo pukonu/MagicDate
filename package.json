@@ -1,38 +1,83 @@
 {
-  "name": "magic-date",
-  "version": "1.0.8",
-  "description": "A simple date utility for javascript",
-  "main": "MagicDate.js",
-  "scripts": {
-    "test": "jest --forceExit --detectOpenHandles",
-    "watch-test": "jest --watchAll",
-    "build": "tsc MagicDate.ts"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/pukonu/MagicDate.git"
-  },
-  "keywords": [
-    "javascript",
-    "date",
-    "nodejs"
-  ],
-  "author": "Peter Ukonu <pukonu@gmail.com>",
-  "license": "Apache 2.0",
-  "bugs": {
-    "url": "https://github.com/pukonu/MagicDate/issues"
-  },
-  "homepage": "https://github.com/pukonu/MagicDate#readme",
-  "devDependencies": {
-    "@babel/core": "^7.3.4",
-    "@babel/preset-env": "^7.3.4",
-    "@babel/preset-typescript": "^7.3.3",
-    "@types/jquery": "3.3.6",
-    "@types/node": "^11.10.5",
-    "babel-jest": "^24.1.0",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-stage-0": "^6.24.1",
-    "babel-register": "^6.26.0",
-    "jest": "^24.1.0"
-  }
+    "name": "magic-date",
+    "version": "2.0.0",
+    "description": "A simple date utility for javascript",
+    "main": "MagicDate.js",
+    "scripts": {
+        "test": "jest --forceExit --detectOpenHandles",
+        "watch-test": "jest --watchAll",
+        "build": "tsc MagicDate.ts"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/pukonu/MagicDate.git"
+    },
+    "keywords": [
+        "javascript",
+        "date",
+        "nodejs"
+    ],
+    "author": "Peter Ukonu <pukonu@gmail.com>",
+    "license": "Apache 2.0",
+    "bugs": {
+        "url": "https://github.com/pukonu/MagicDate/issues"
+    },
+    "homepage": "https://github.com/pukonu/MagicDate#readme",
+    "devDependencies": {
+        "@babel/core": "^7.9.6",
+        "@babel/preset-env": "^7.9.6",
+        "@babel/preset-typescript": "^7.9.0",
+        "@types/jest": "^25.2.3",
+        "@types/jquery": "^3.3.38",
+        "@types/node": "^14.0.4",
+        "babel-jest": "^26.0.1",
+        "babel-preset-env": "^1.7.0",
+        "babel-preset-stage-0": "^6.24.1",
+        "babel-register": "^6.26.0",
+        "jest": "^26.0.1",
+        "prettier": "^1.19.1",
+        "ts-jest": "^26.0.0",
+        "ts-node": "^8.10.1",
+        "typescript": "^3.7.5"
+    },
+    "eslintConfig": {
+        "extends": [
+            "react-app",
+            "prettier",
+            "prettier/react"
+        ],
+        "plugins": [
+            "prettier",
+            "react-hooks"
+        ],
+        "parser": "babel-eslint",
+        "env": {
+            "browser": true,
+            "jest": true
+        },
+        "rules": {
+            "prettier/prettier": 2,
+            "react/jsx-filename-extension": [
+                2,
+                {
+                    "extensions": [
+                        ".jsx",
+                        ".tsx"
+                    ]
+                }
+            ],
+            "react-hooks/rules-of-hooks": "error",
+            "react-hooks/exhaustive-deps": "warn"
+        }
+    },
+    "browserslist": [
+        ">0.2%",
+        "not dead",
+        "not ie <= 11",
+        "not op_mini all"
+    ],
+    "prettier": {
+        "tabWidth": 4,
+        "printWidth": 100
+    }
 }

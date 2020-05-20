@@ -3,8 +3,16 @@
  * @email [pukonu@gmail.com]
  * @create date 2018-07-06 02:51:23
  * @modify date 2018-07-06 02:53:23
+ * @modify date 2020-05-20 03:00:00 - v2
  * @desc A date utility class to handle all sort of manipulation on a date
  */
+
+/**
+ * Time formats
+ */
+enum TimeFormat {
+    "ISO8601"
+}
 
 /**
  * Week day definition interface
@@ -829,7 +837,7 @@ class MagicDate implements DateInterface {
                 return this;
             }
         } catch (e) {
-            console.error(e);
+            // console.error(e);
         }
 
         return this;
