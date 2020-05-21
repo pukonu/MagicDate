@@ -7,7 +7,7 @@
  * @desc A date utility class to handle all sort of manipulation on a date
  */
 
-import MagicDate from "./MagicDate";
+import MagicDate from "./magic-date";
 
 /**
  * This DateUtil class is capable of returning multiple permutations to a date

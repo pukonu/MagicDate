@@ -2,11 +2,11 @@
     "name": "magic-date",
     "version": "2.0.0",
     "description": "A simple date utility for javascript",
-    "main": "MagicDate.js",
+    "main": "magic-date.js",
     "scripts": {
         "test": "jest --forceExit --detectOpenHandles",
         "watch-test": "jest --watchAll",
-        "build": "tsc MagicDate.ts"
+        "build": "tsc magic-date.ts"
     },
     "repository": {
         "type": "git",
