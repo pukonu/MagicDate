@@ -67,7 +67,7 @@ import MagicDate from "./MagicDate";
 const CASE1 = {
     year: 2018,
     month: 3,
-    day: 18
+    day: 18,
 };
 
 const CASE2 = {
@@ -82,196 +82,198 @@ test("The class call should return a dictionary of the time value", () => {
     expect(new MagicDate()).toBeDefined();
 
     // tmp
-    const md = new MagicDate();
+    // const md = new MagicDate();
+    // const md = MagicDate.makeDateFromString("2020-05-21T01:05");
+    //
+    // console.log("md", md);
+    // console.log("md", md.toString());
+    // console.log("md", MagicDate.makeDate(CASE1).toString());
 
-    console.log("md", md);
-    console.log("md", md.toString());
+    console.log(MagicDate.makeDate(CASE1).getWeekLastDate().toString())
 });
 
-// test("the first day of week of a given week from a date object", () => {
-//     // case1 should assert to Saturday - March 24, 2018
-//     // case2 should assert to Sunday - June 17, 2018
-//     expect(
-//         MagicDate.makeDate(CASE1)
-//             .getWeekFirstDate()
-//             .toString()
-//     ).toMatch("2018-03-18");
-//     expect(
-//         MagicDate.makeDate(CASE2)
-//             .getWeekFirstDate()
-//             .toString()
-//     ).toMatch("2018-06-17");
-// });
+test("the first day of week of a given week from a date object", () => {
+    // case1 should assert to Saturday - March 24, 2018
+    // case2 should assert to Sunday - June 17, 2018
+    expect(
+        MagicDate.makeDate(CASE1)
+            .getWeekFirstDate()
+            .toString()
+    ).toMatch("2018-03-18");
+    expect(
+        MagicDate.makeDate(CASE2)
+            .getWeekFirstDate()
+            .toString()
+    ).toMatch("2018-06-17");
+});
 
-// test("the last day of week of a given week from a date object", () => {
-//     // case1 should assert to Saturday - March 24, 2018
-//     // case2 should assert to Sunday - June 23, 2018
-//     expect(
-//         MagicDate.makeDate(CASE1)
-//             .getWeekLastDate()
-//             .toString()
-//     ).toMatch("2018-03-24");
-//     expect(
-//         MagicDate.makeDate(CASE2)
-//             .getWeekLastDate()
-//             .toString()
-//     ).toMatch("2018-06-23");
-// });
-//
-// test("get 3 days ahead from a reference date", () => {
-//     // case1 should assert to Saturday - March 21, 2018
-//     // case2 should assert to Sunday - June 23, 2018
-//     expect(
-//         MagicDate.makeDate(CASE1)
-//             .next("3 days")
-//             .toString()
-//     ).toMatch("2018-03-21");
-//     expect(
-//         MagicDate.makeDate(CASE2)
-//             .next("3 days")
-//             .toString()
-//     ).toMatch("2018-06-23");
-// });
-//
-// test("get 3 prior from a reference date", () => {
-//     // case1 should assert to Saturday - March 15, 2018
-//     // case2 should assert to Sunday - June 17, 2018
-//     expect(
-//         MagicDate.makeDate(CASE1)
-//             .next("-3 days")
-//             .toString()
-//     ).toMatch("2018-03-15");
-//     expect(
-//         MagicDate.makeDate(CASE2)
-//             .next("-3 days")
-//             .toString()
-//     ).toMatch("2018-06-17");
-// });
-//
-// test("get 3 weeks ahead from a reference date", () => {
-//     // case1 should assert to Saturday - April 8, 2018
-//     // case2 should assert to Sunday - July 11, 2018
-//     expect(
-//         MagicDate.makeDate(CASE1)
-//             .next("3 weeks")
-//             .toString()
-//     ).toMatch("2018-04-08");
-//     expect(
-//         MagicDate.makeDate(CASE2)
-//             .next("3 weeks")
-//             .toString()
-//     ).toMatch("2018-07-11");
-// });
-//
-// test("get 1 month prior from a reference date", () => {
-//     // we are reversing a month, from a month a longer lenght to a lower one,
-//     // the untility should detect this and adjust accordingly
-//     expect(
-//         MagicDate.makeDate({
-//             year: 2018,
-//             month: 3,
-//             day: 29
-//         })
-//             .next("-1 month")
-//             .toDateString()
-//     ).toMatch("2018-02-28");
-// });
-//
-// test("get 2 years and a month prior from a reference date", () => {
-//     // this will reverse into a leap year, we should be expecting a Feb 29 date of 2016 .next("-1 month")
-//     expect(
-//         MagicDate.makeDate({
-//             year: 2018,
-//             month: 3,
-//             day: 31
-//         })
-//             .next("-2 years")
-//             .next("-1 month")
-//             .toDateString()
-//     ).toMatch("2016-02-29");
-// });
-//
-// test("get the week number based on a given date", () => {
-//     // console.log(DateUtil.makeDate().getWeekNum());
-//     expect(
-//         MagicDate.makeDate(CASE1) // week starts on Sunday by default
-//             .getWeekNum()
-//     ).toEqual(11);
-//
-//     expect(
-//         MagicDate.makeDate(CASE1)
-//             .setWeekStart(1) // set week to start on Monday
-//             .getWeekNum()
-//     ).toEqual(12);
-//
-//     expect(MagicDate.makeDate(CASE2).getWeekNum()).toEqual(25);
-// });
-//
-// test("get the first date from a given month", () => {
-//     const $case1 = MagicDate.makeDate(CASE1);
-//     const $case2 = MagicDate.makeDate(CASE2);
-//     const $case3 = {
-//         month: 3,
-//         year: 2017
-//     };
-//
-//     expect(MagicDate.getMonthFirstDate($case1).weekday.name).toBe("Thursday");
-//     expect(MagicDate.getMonthFirstDate($case2).weekday.name).toBe("Friday");
-//     // expect(MagicDate.getMonthFirstDate($case3).weekday.name).toBe("Wednesday");
-// });
-//
-// test("get the last date from a given month", () => {
-//     const $case1 = MagicDate.makeDate(CASE1);
-//     const $case2 = MagicDate.makeDate(CASE2);
-//     const $case3 = {
-//         month: 11,
-//         year: 2017
-//     };
-//
-//     expect(MagicDate.getMonthLastDate($case1).weekday.name).toBe("Saturday");
-//     expect(MagicDate.getMonthLastDate($case2).weekday.name).toBe("Saturday");
-//     // expect(MagicDate.getMonthLastDate($case3).weekday.name).toBe("Thursday");
-// });
-//
-// test("check if year of a given year or year is a leap year", () => {
-//     const $refDate1 = MagicDate.makeDate(CASE1);
-//     const $isLeapYearFromYear = MagicDate.isLeapYear(2016);
-//     expect($refDate1.leapYear).toBeFalsy();
-//     expect($isLeapYearFromYear).toBeTruthy();
-// });
-//
-// test("check if date is in proper positions, checks if greater", () => {
-//     const $start = MagicDate.makeDate(CASE1);
-//     const $end = MagicDate.makeDate(CASE2);
-//     expect(MagicDate.validateDatePosition($start, $end)).toBeTruthy();
-// });
-//
-// test("get all dates between 2 reference dates", () => {
-//     const $start = MagicDate.makeDate(CASE1);
-//     const $end = MagicDate.makeDate(CASE2);
-//     const daysArr = MagicDate.getDateFromTo($start, $end).map(v => v.toDateString());
-//
-//     expect(daysArr).toContain("2018-03-19");
-//     expect(daysArr).toContain("2018-06-19");
-//     // expect(daysArr).toHaveLength(95)
-// });
-//
-// test("get dates from a week number", () => {
-//     const assertToValue = [
-//         "2017-12-31",
-//         "2018-01-01",
-//         "2018-01-02",
-//         "2018-01-03",
-//         "2018-01-04",
-//         "2018-01-05",
-//         "2018-01-06"
-//     ];
-//
-//     const weekArr = MagicDate.getDatesFromWeekNum(1, 2018).map(v =>
-//         v.setCast("%Y-%m-%d").toString()
-//     );
-//
-//     expect(JSON.stringify(weekArr)).toBe(JSON.stringify(assertToValue));
-// });
+test("the last day of week of a given week from a date object", () => {
+    // case1 should assert to Saturday - March 24, 2018
+    // case2 should assert to Sunday - June 23, 2018
+    expect(
+        MagicDate.makeDate(CASE1)
+            .getWeekLastDate()
+            .toString()
+    ).toMatch("2018-03-24");
+    expect(
+        MagicDate.makeDate(CASE2)
+            .getWeekLastDate()
+            .toString()
+    ).toMatch("2018-06-23");
+});
 
-// test configuration boundaries
+test("get 3 days ahead from a reference date", () => {
+    // case1 should assert to Saturday - March 21, 2018
+    // case2 should assert to Sunday - June 23, 2018
+    expect(
+        MagicDate.makeDate(CASE1)
+            .next("3 days")
+            .toString()
+    ).toMatch("2018-03-21");
+    expect(
+        MagicDate.makeDate(CASE2)
+            .next("3 days")
+            .toString()
+    ).toMatch("2018-06-23");
+});
+
+test("get 3 prior from a reference date", () => {
+    // case1 should assert to Saturday - March 15, 2018
+    // case2 should assert to Sunday - June 17, 2018
+    expect(
+        MagicDate.makeDate(CASE1)
+            .next("-3 days")
+            .toString()
+    ).toMatch("2018-03-15");
+    expect(
+        MagicDate.makeDate(CASE2)
+            .next("-3 days")
+            .toString()
+    ).toMatch("2018-06-17");
+});
+
+test("get 3 weeks ahead from a reference date", () => {
+    // case1 should assert to Saturday - April 8, 2018
+    // case2 should assert to Sunday - July 11, 2018
+    expect(
+        MagicDate.makeDate(CASE1)
+            .next("3 weeks")
+            .toString()
+    ).toMatch("2018-04-08");
+    expect(
+        MagicDate.makeDate(CASE2)
+            .next("3 weeks")
+            .toString()
+    ).toMatch("2018-07-11");
+});
+
+test("get 1 month prior from a reference date", () => {
+    // we are reversing a month, from a month a longer length to a lower one,
+    // the utility should detect this and adjust accordingly
+    expect(
+        MagicDate.makeDate({
+            year: 2018,
+            month: 3,
+            day: 29
+        })
+            .next("-1 month")
+            .toDateString()
+    ).toMatch("2018-02-28");
+});
+
+test("get 2 years and a month prior from a reference date", () => {
+    // this will reverse into a leap year, we should be expecting a Feb 29 date of 2016 .next("-1 month")
+    expect(
+        MagicDate.makeDate({
+            year: 2018,
+            month: 3,
+            day: 31
+        })
+            .next("-2 years")
+            .next("-1 month")
+            .toDateString()
+    ).toMatch("2016-02-29");
+});
+
+test("get the week number based on a given date", () => {
+    // console.log(DateUtil.makeDate().getWeekNum());
+    expect(
+        MagicDate.makeDate(CASE1) // week starts on Sunday by default
+            .getWeekNum()
+    ).toEqual(11);
+
+    expect(
+        MagicDate.makeDate(CASE1)
+            .setWeekStart(1) // set week to start on Monday
+            .getWeekNum()
+    ).toEqual(12);
+
+    expect(MagicDate.makeDate(CASE2).getWeekNum()).toEqual(25);
+});
+
+test("get the first date from a given month", () => {
+    const $case1 = MagicDate.makeDate(CASE1);
+    const $case2 = MagicDate.makeDate(CASE2);
+    const $case3 = {
+        month: 3,
+        year: 2017
+    };
+
+    expect(MagicDate.getMonthFirstDate($case1).weekday.name).toBe("Thursday");
+    expect(MagicDate.getMonthFirstDate($case2).weekday.name).toBe("Friday");
+    expect(MagicDate.getMonthFirstDate($case3).weekday.name).toBe("Wednesday");
+});
+
+test("get the last date from a given month", () => {
+    const $case1 = MagicDate.makeDate(CASE1);
+    const $case2 = MagicDate.makeDate(CASE2);
+    const $case3 = {
+        month: 11,
+        year: 2017
+    };
+
+    expect(MagicDate.getMonthLastDate($case1).weekday.name).toBe("Saturday");
+    expect(MagicDate.getMonthLastDate($case2).weekday.name).toBe("Saturday");
+    expect(MagicDate.getMonthLastDate($case3).weekday.name).toBe("Thursday");
+});
+
+test("check if year of a given year or year is a leap year", () => {
+    const $refDate1 = MagicDate.makeDate(CASE1);
+    const $isLeapYearFromYear = MagicDate.isLeapYear(2016);
+    expect($refDate1.leapYear).toBeFalsy();
+    expect($isLeapYearFromYear).toBeTruthy();
+});
+
+test("check if date is in proper positions, checks if greater", () => {
+    const $start = MagicDate.makeDate(CASE1);
+    const $end = MagicDate.makeDate(CASE2);
+    expect(MagicDate.validateDatePosition($start, $end)).toBeTruthy();
+});
+
+test("get all dates between 2 reference dates", () => {
+    const $start = MagicDate.makeDate(CASE1);
+    const $end = MagicDate.makeDate(CASE2);
+    const daysArr = MagicDate.getDateFromTo($start, $end).map(v => v.toDateString());
+
+    expect(daysArr).toContain("2018-03-19");
+    expect(daysArr).toContain("2018-06-19");
+    expect(daysArr).toHaveLength(95)
+});
+
+test("get dates from a week number", () => {
+    const assertToValue = [
+        "2017-12-31",
+        "2018-01-01",
+        "2018-01-02",
+        "2018-01-03",
+        "2018-01-04",
+        "2018-01-05",
+        "2018-01-06"
+    ];
+
+    const weekArr = MagicDate.getDatesFromWeekNum({weekNum: 1, year: 2018, includeEndDate: true}).map(v =>
+        v.setCast("%Y-%m-%d").toString()
+    );
+
+    expect(JSON.stringify(weekArr)).toBe(JSON.stringify(assertToValue));
+});

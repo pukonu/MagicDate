@@ -10,6 +10,9 @@
 /**
  * Time formats
  */
+import { log } from "util";
+import { read } from "fs";
+
 enum TimeFormat {
     "ISO8601"
 }
@@ -37,20 +40,35 @@ interface MonthInterface {
  * Interface class to guide date construction
  */
 class SimpleDateInterface {
-    dt: number;
-    year: number;
-    month: number;
-    day: number;
-    hour: number = 12;
-    min: number = 0;
-    sec: number = 0;
-    microseconds: number = 0;
-    tzOffset: number = 0;
+    dt?: number;
+    year?: number;
+    month?: number;
+    day?: number;
+    hour?: number = 12;
+    min?: number = 0;
+    sec?: number = 0;
+    microSecond?: number = 0;
+    timezoneOffset?: number = 0; // should be in multiples of 60
 }
 
 type MagicDateOptionsType = {
     weekStart?: WeekDayInterface;
-    millisecondsLength?: number;
+    microSecondsLength?: number;
+    dateIso?: TimeFormat;
+};
+
+type IGetDatesFromWeekNum = {
+    weekNum: number;
+    year?: number | null;
+    abstraction?: "year" | "month" | "day" | "hour" | "min" | "sec" | "microSecond";
+    weekStart?: WeekDayInterface;
+    includeEndDate?: boolean;
+};
+
+type IGetMonth = {
+    dateObject?: MagicDate;
+    month?: number;
+    year?: number;
 };
 
 /**
@@ -123,7 +141,7 @@ class MagicDate implements DateInterface {
     weekdayNumeric: number | null = null;
     weeknum: number | null = null;
     weekStart: WeekDayInterface = MagicDate.WEEKDAYS[0];
-    leapYear: boolean | null = false;
+    leapYear: boolean = false;
 
     yearStr: string | null = null;
     monthStr: string | null = null;
@@ -140,7 +158,7 @@ class MagicDate implements DateInterface {
 
     options: MagicDateOptionsType;
 
-    private _castMask: string | null = "%Y-%m-%d %H:%i:%s.%u%t";
+    private _castMask: string | null = null;
 
     /**
      * Dictionary of month definitions
@@ -265,24 +283,26 @@ class MagicDate implements DateInterface {
      * Default start date of the week
      */
     static DEFAULT_WEEK_START: WeekDayInterface = MagicDate.WEEKDAYS[0];
-    static DEFAULT_MILLI_SECONDS_LENGTH: number = 6;
+    static DEFAULT_MICRO_SECONDS_LENGTH: number = 6;
+    static DEFAULT_ISO_FORMAT: number = TimeFormat.ISO8601;
 
     /**
      * Boundaries for configuration
      */
-    static CONFIG_BOUNDARIES: any = {
+    static CONFIG_BOUNDARIES: Record<string, number[]> = {
         year_boundary: [1900, 2100],
         month_boundary: [1, 12],
         day_boundary: [1, 31],
         hour_boundary: [0, 23],
         min_boundary: [0, 59],
-        sec_boundary: [0, 59]
+        sec_boundary: [0, 59],
+        microSecond_boundary: [0, 999999]
     };
 
     /**
      * Generic labels
      */
-    static LABELS: any = {
+    static LABELS: Record<"day", string> = {
         day: "day"
     };
 
@@ -313,19 +333,24 @@ class MagicDate implements DateInterface {
     /**
      * A public static method in MagicDate which represent a Factory for making dateObjects
      * @param dateFactoryConfig
+     * @param options
      */
     public static makeDate(
-        dateFactoryConfig: SimpleDateInterface = new SimpleDateInterface()
+        dateFactoryConfig: SimpleDateInterface = new SimpleDateInterface(),
+        options: MagicDateOptionsType = {}
     ): MagicDate {
-        const dateObject = new MagicDate();
+        let dateObject = new MagicDate();
+        const __microSecondLength =
+            options.microSecondsLength || MagicDate.DEFAULT_MICRO_SECONDS_LENGTH;
 
         try {
             if (dateFactoryConfig.dt) {
                 dateObject.dtObj = new Date(dateFactoryConfig.dt);
             } else {
                 const __dateObject = new SimpleDateInterface();
+                const __isoDate = {};
 
-                ["year", "month", "day", "hour", "min", "sec", "microseconds"].map(v => {
+                ["year", "month", "day", "hour", "min", "sec", "microSecond"].map(v => {
                     const validityError = MagicDate.validateDateConfig(
                         parseInt(dateFactoryConfig[v]),
                         v
@@ -335,24 +360,33 @@ class MagicDate implements DateInterface {
                     }
 
                     __dateObject[v] = dateFactoryConfig[v] || __dateObject[v];
+
+                    switch (v) {
+                        case "year":
+                            __isoDate[v] = __dateObject[v];
+                            break;
+                        case "microSecond":
+                            __isoDate[v] = MagicDate.padding(
+                                __dateObject[v].toString(),
+                                __microSecondLength,
+                                "0"
+                            );
+                            break;
+                        default:
+                            __isoDate[v] = MagicDate.padding(__dateObject[v].toString(), 2, "0");
+                    }
                 });
 
-                if (__dateObject.year && __dateObject.month) {
-                    dateObject.dtObj = new Date(
-                        __dateObject.year,
-                        __dateObject.month - 1,
-                        __dateObject.day,
-                        __dateObject.hour,
-                        __dateObject.min,
-                        __dateObject.sec,
-                        __dateObject.microseconds
-                    );
-                }
+                const timezoneStr = MagicDate.makeTimezoneStr(__dateObject.timezoneOffset);
+
+                const isoDateStr = `${__isoDate["year"]}-${__isoDate["month"]}-${__isoDate["day"]} ${__isoDate["hour"]}:${__isoDate["min"]}:${__isoDate["sec"]}.${__isoDate["microSecond"]}${timezoneStr}`;
+                return MagicDate.makeDateFromString(isoDateStr, options);
             }
         } catch (e) {
             console.error(
                 "To make a new date, you must pass in the year month and day into the makeDate " +
-                    "function arguments"
+                    "function arguments",
+                e
             );
         }
 
@@ -362,39 +396,49 @@ class MagicDate implements DateInterface {
     }
 
     /**
+     * Use this function to make a date time from date string in an ISO format
+     * Please not that this function is limited to ISO 8601
+     * @param date
+     * @param option
+     */
+    public static makeDateFromString(date: string, option: MagicDateOptionsType = {}): MagicDate {
+        return new MagicDate(new Date(date), option);
+    }
+
+    /**
      * A function to generate an Array of MagicDate objects from a reference start date to an end date
-     * @param $start
-     * @param $end
-     * @param $abstraction
-     * @param $weekStart
-     * @param $includeEndDate
+     * @param start
+     * @param end
+     * @param abstraction
+     * @param weekStart
+     * @param includeEndDate
      */
     public static getDateFromTo(
-        $start: MagicDate,
-        $end: MagicDate,
-        $abstraction: string = "day",
-        $weekStart: WeekDayInterface | null = null,
-        $includeEndDate: boolean = true
+        start: MagicDate,
+        end: MagicDate,
+        abstraction: string = "day",
+        weekStart: WeekDayInterface | null = null,
+        includeEndDate: boolean = true
     ): Array<MagicDate> {
-        const startNumeric = $start.dtTime;
-        const endNumeric = $end.dtTime;
-        $weekStart = $weekStart || MagicDate.DEFAULT_WEEK_START;
+        const startNumeric = start.dtTime;
+        const endNumeric = end.dtTime;
+        // $weekStart = $weekStart || MagicDate.DEFAULT_WEEK_START;
 
         const dateArray = [];
 
         // check if date is in correct order and throw exception if not
-        if (!MagicDate.validateDatePosition($start, $end))
+        if (!MagicDate.validateDatePosition(start, end))
             throw new Error(MagicDate.EXCEPTIONS.dateRangeOrderException);
 
         // a caveat to include end date when return a dates between 2 dates
-        const endDatePadding = $includeEndDate ? MagicDate.timeMult($abstraction) : 0;
+        const endDatePadding = includeEndDate ? MagicDate.timeMult(abstraction) : 0;
 
         let i = startNumeric;
-        while (i && endNumeric && i <= endNumeric + endDatePadding) {
+        while (i && endNumeric && i < endNumeric + endDatePadding) {
             const __dateObject: SimpleDateInterface = new SimpleDateInterface();
             __dateObject.dt = i;
             dateArray.push(MagicDate.makeDate(__dateObject));
-            i += MagicDate.timeMult($abstraction);
+            i += MagicDate.timeMult(abstraction);
         }
 
         return dateArray;
@@ -402,43 +446,45 @@ class MagicDate implements DateInterface {
 
     /**
      * A function to get first date of a given week number
-     * @param $weekNum
-     * @param $year
+     * @param weekNum
+     * @param year
      */
-    private static getDateFromWeekNum($weekNum: any, $year: number | null): MagicDate {
+    private static getDateFromWeekNum(weekNum: any, year: number | null): MagicDate {
         const __dateObject = new SimpleDateInterface();
-        __dateObject.year = $year || new Date().getFullYear();
+        __dateObject.year = year || new Date().getFullYear();
         __dateObject.month = 1;
         __dateObject.day = 1;
 
         const dateObject = MagicDate.makeDate(__dateObject);
-        return dateObject.next(`${$weekNum - 1} weeks`).getWeekFirstDate();
+        return dateObject.next(`${weekNum - 1} weeks`).getWeekFirstDate();
     }
 
     /**
      * A function to get an array of dates of a given week number
-     * @param $weekNum
-     * @param $year
-     * @param $abstraction
-     * @param $weekStart
-     * @param $includeEndDate
+     * @param weekNum
+     * @param year
+     * @param abstraction
+     * @param weekStart
+     * @param includeEndDate
      */
-    public static getDatesFromWeekNum(
-        $weekNum: any,
-        $year = null,
-        $abstraction = "day",
-        $weekStart = null,
-        $includeEndDate = false
-    ): Array<MagicDate> {
-        const $start = MagicDate.getDateFromWeekNum($weekNum, $year);
-        const $end = MagicDate.getDateFromWeekNum($weekNum, $year).getWeekLastDate();
+    public static getDatesFromWeekNum({
+        weekNum,
+        year = null,
+        abstraction = "day",
+        weekStart = MagicDate.DEFAULT_WEEK_START,
+        includeEndDate = false
+    }: IGetDatesFromWeekNum): Array<MagicDate> {
+        const start = MagicDate.getDateFromWeekNum(weekNum, year);
+        const end = MagicDate.getDateFromWeekNum(weekNum, year).getWeekLastDate();
 
-        return MagicDate.getDateFromTo($start, $end, $abstraction, $weekStart, $includeEndDate);
+        return MagicDate.getDateFromTo(start, end, abstraction, weekStart, includeEndDate);
     }
 
     /**
      * Will return an array of weeks
-     * @param param0
+     * @param $range
+     * @param $start
+     * @param $startYear
      */
     public static getWeeks($range = 1, $start: number, $startYear: number): Array<any> {
         const dateObject = new MagicDate();
@@ -468,11 +514,7 @@ class MagicDate implements DateInterface {
      * @param month
      * @param year
      */
-    public static getMonthFirstDate(
-        dateObject?: MagicDate,
-        month?: number | null,
-        year?: number | null
-    ): MagicDate {
+    public static getMonthFirstDate({ dateObject, month, year }: IGetMonth): MagicDate {
         if (dateObject || (month && year)) {
             if (dateObject) {
                 month = dateObject.month;
@@ -495,11 +537,7 @@ class MagicDate implements DateInterface {
      * @param month
      * @param year
      */
-    public static getMonthLastDate(
-        dateObject?: MagicDate,
-        month?: number | null,
-        year?: number | null
-    ): MagicDate {
+    public static getMonthLastDate({ dateObject, month, year }: IGetMonth): MagicDate {
         if (dateObject || (month && year)) {
             if (dateObject) {
                 month = dateObject.month;
@@ -560,6 +598,21 @@ class MagicDate implements DateInterface {
     }
 
     /**
+     * Make a timezone iso string
+     * @param timezoneOffset
+     * @param dtObj
+     */
+    public static makeTimezoneStr(timezoneOffset: number = null, dtObj: Date = null): string {
+        const _timezoneOffset =
+            timezoneOffset || dtObj?.getTimezoneOffset() || new Date().getTimezoneOffset();
+        const minutes = Math.abs(_timezoneOffset / 60);
+        const paddedMinutes = MagicDate.padding(minutes.toString(), 2, "0");
+        const sign = _timezoneOffset < 0 ? "+" : "-";
+
+        return `${sign}${paddedMinutes}:00`;
+    }
+
+    /**
      * Check if current year is a leap
      * @param year
      */
@@ -594,14 +647,13 @@ class MagicDate implements DateInterface {
         return len > 0 ? new Array(len).join(paddingStr) + value : value;
     }
 
-    constructor(
-        date: Date = null,
-        options = {
+    constructor(date: Date | null = null, options: MagicDateOptionsType = {}) {
+        this.options = {
             weekStart: MagicDate.DEFAULT_WEEK_START,
-            millisecondsLength: MagicDate.DEFAULT_MILLI_SECONDS_LENGTH
-        }
-    ) {
-        this.options = options;
+            microSecondsLength: MagicDate.DEFAULT_MICRO_SECONDS_LENGTH,
+            dateIso: MagicDate.DEFAULT_ISO_FORMAT,
+            ...options
+        };
         return this.now(date);
     }
 
@@ -635,7 +687,7 @@ class MagicDate implements DateInterface {
      * Last date of a week
      */
     getWeekLastDate(): MagicDate {
-        this.weekdayNumeric && this.next(`${6 - this.weekdayNumeric} days`);
+        this.weekdayNumeric !== null && this.next(`${6 - this.weekdayNumeric} days`);
         return this;
     }
 
@@ -662,7 +714,7 @@ class MagicDate implements DateInterface {
         const januaryFirst = new Date(this.year, 0, 1);
 
         const v =
-            (this.dtTime || 0 / MagicDate.timeMult(MagicDate.LABELS.day)) -
+            (this.dtTime || 0) / MagicDate.timeMult(MagicDate.LABELS.day) -
             januaryFirst.getTime() / MagicDate.timeMult(MagicDate.LABELS.day) +
             januaryFirst.getDay() -
             (this.weekStart.name === MagicDate.DEFAULT_WEEK_START.name ? 1 : 0);
@@ -709,23 +761,28 @@ class MagicDate implements DateInterface {
                 break;
         }
 
+        // this have irregular lengths so we will handle differently
         if (["year", "month"].indexOf(abstraction) > -1) {
             let yearDelta = 0,
                 monthDelta = 0;
             valueInt = Math.abs(valueInt);
 
-            if (abstraction === "month") {
-                yearDelta = Math.floor(valueInt / 12) * polarity;
-                monthDelta = (valueInt % 12) * polarity;
-            }
+            switch (abstraction) {
+                case "year":
+                    yearDelta = valueInt * polarity;
+                    break;
 
-            if (abstraction === "year") {
-                yearDelta = valueInt * polarity;
+                case "month":
+                    yearDelta = Math.floor(valueInt / 12) * polarity;
+                    monthDelta = (valueInt % 12) * polarity;
+                    break;
+
+                default:
             }
 
             const __simpleDate = new SimpleDateInterface();
-            __simpleDate.year = this.year || new Date().getFullYear() + yearDelta;
-            __simpleDate.month = this.month || new Date().getMonth() + monthDelta;
+            __simpleDate.year = (this.year || new Date().getFullYear()) + yearDelta;
+            __simpleDate.month = (this.month || new Date().getMonth() + 1) + monthDelta; // month return a unit before in js
             __simpleDate.day = this.day || new Date().getDay();
 
             const monthLength = MagicDate.getMonthLength(__simpleDate.year, __simpleDate.month);
@@ -812,7 +869,7 @@ class MagicDate implements DateInterface {
             this.dtObj &&
             this.dtObj.getTime() +
                 -1 * new Date().getTimezoneOffset() * MagicDate.timeMult("min") -
-                1000 * 60 * 30;
+                1000 * 60;
 
         if (_dt) {
             this.dtObj = new Date(_dt);
@@ -830,16 +887,15 @@ class MagicDate implements DateInterface {
     private _formatWithLeadingZeroes(): MagicDate {
         const { year, month, day, hour, minute, second, microSecond } = this;
 
-        this.yearStr = (year && year.toString()) || null;
-        this.monthStr = (month && MagicDate.padding(month.toString(), 2, "0")) || null;
-        this.dayStr = (day && MagicDate.padding(day.toString(), 2, "0")) || null;
-        this.hourStr = (hour && MagicDate.padding(hour.toString(), 2, "0")) || null;
-        this.minuteStr = (minute && MagicDate.padding(minute.toString(), 2, "0")) || null;
-        this.secondStr = (second && MagicDate.padding(second.toString(), 2, "0")) || null;
+        this.yearStr = year.toString();
+        this.monthStr = MagicDate.padding(month.toString(), 2, "0");
+        this.dayStr = MagicDate.padding(day.toString(), 2, "0");
+        this.hourStr = hour !== null && MagicDate.padding(hour.toString(), 2, "0");
+        this.minuteStr = minute !== null && MagicDate.padding(minute.toString(), 2, "0");
+        this.secondStr = second !== null && MagicDate.padding(second.toString(), 2, "0");
         this.microSecondStr =
-            (microSecond &&
-                MagicDate.padding(microSecond.toString(), this.options.millisecondsLength, "0")) ||
-            null;
+            microSecond !== null &&
+            MagicDate.padding(microSecond.toString(), this.options.microSecondsLength, "0");
 
         return this;
     }
@@ -860,31 +916,26 @@ class MagicDate implements DateInterface {
                 this.second = parseInt(isoDate.substring(17, 19));
                 this.microSecond = parseInt(isoDate.substring(20, 23));
 
-                this._makeTimezone(this.timezoneOffset);
+                this.timezoneStr = MagicDate.makeTimezoneStr(this.timezoneOffset, this.dtObj);
 
                 this.weeknum = this.getWeekNum();
                 this.leapYear = this.year % 4 === 0;
 
+                switch (this.options.dateIso) {
+                    case TimeFormat.ISO8601:
+                    default:
+                        this._castMask = "%Y-%m-%d %H:%i:%s.%u%t";
+                }
+
+                this._formatWithLeadingZeroes();
+
                 return this;
             }
         } catch (e) {
-            // console.error(e);
+            console.error(e);
         }
 
         return this;
-    }
-
-    private _makeTimezone(timezoneOffset: number = null): string {
-        const _timezoneOffset = timezoneOffset || this.dtObj.getTimezoneOffset();
-        const minutes = Math.abs(_timezoneOffset / 60);
-        const paddedMinutes = MagicDate.padding(minutes.toString(), 2, "0");
-        const sign = _timezoneOffset < 0 ? "+" : "-";
-
-        this.timezoneStr = `${sign}${paddedMinutes}:00`;
-
-        console.log("Got here", this.timezoneStr);
-
-        return this.timezoneStr;
     }
 }
 
