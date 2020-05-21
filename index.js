@@ -1,1 +1,1 @@
-export * from './magic-date';
+export default from './magic-date';
