@@ -69,7 +69,7 @@ type IGetDatesFromWeekNum = {
     includeEndDate?: boolean;
 };
 
-type IGetMonth = {
+type IGetMonth = MagicDate & {
     dateObject?: MagicDate;
     month?: number;
     year?: number;
@@ -418,7 +418,7 @@ class MagicDate implements DateInterface {
         } catch (e) {
             console.error(
                 "To make a new date, you must pass in the year month and day into the makeDate " +
-                    "function arguments",
+                "function arguments",
                 e
             );
         }
@@ -501,12 +501,12 @@ class MagicDate implements DateInterface {
      * @param includeEndDate
      */
     public static getDatesFromWeekNum({
-        weekNum,
-        year = null,
-        abstraction = "day",
-        weekStart = MagicDate.DEFAULT_WEEK_START,
-        includeEndDate = false
-    }: IGetDatesFromWeekNum): Array<MagicDate> {
+                                          weekNum,
+                                          year = null,
+                                          abstraction = "day",
+                                          weekStart = MagicDate.DEFAULT_WEEK_START,
+                                          includeEndDate = false
+                                      }: IGetDatesFromWeekNum): Array<MagicDate> {
         const start = MagicDate.getDateFromWeekNum(weekNum, year);
         const end = MagicDate.getDateFromWeekNum(weekNum, year).getWeekLastDate();
 
@@ -547,7 +547,7 @@ class MagicDate implements DateInterface {
      * @param month
      * @param year
      */
-    public static getMonthFirstDate({ dateObject, month, year }: IGetMonth): MagicDate {
+    public static getMonthFirstDate({ dateObject, month, year }: Partial<IGetMonth>): MagicDate {
         if (dateObject || (month && year)) {
             if (dateObject) {
                 // @ts-ignore
@@ -572,7 +572,7 @@ class MagicDate implements DateInterface {
      * @param month
      * @param year
      */
-    public static getMonthLastDate({ dateObject, month, year }: IGetMonth): MagicDate {
+    public static getMonthLastDate({ dateObject, month, year }: Partial<IGetMonth>): MagicDate {
         if (dateObject || (month && year)) {
             if (dateObject) {
                 // @ts-ignore
@@ -868,10 +868,10 @@ class MagicDate implements DateInterface {
             let __ret = this._castMask;
             const keywords = __ret.match(/[A-Za-z]/g);
             keywords &&
-                keywords.map(
-                    k =>
-                        (__ret = __ret.replace(`%${k}`, eval(`${MagicDate.MASK_DICTIONARY[k]}Str`)))
-                );
+            keywords.map(
+                k =>
+                    (__ret = __ret.replace(`%${k}`, eval(`${MagicDate.MASK_DICTIONARY[k]}Str`)))
+            );
             return __ret;
         }
 
@@ -905,8 +905,8 @@ class MagicDate implements DateInterface {
         const _dt =
             this.dtObj &&
             this.dtObj.getTime() +
-                -1 * new Date().getTimezoneOffset() * MagicDate.timeMult("min") -
-                1000 * 60;
+            -1 * new Date().getTimezoneOffset() * MagicDate.timeMult("min") -
+            1000 * 60;
 
         if (_dt) {
             this.dtObj = new Date(_dt);

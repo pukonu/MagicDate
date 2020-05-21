@@ -7,7 +7,7 @@
  * @desc A date utility class to handle all sort of manipulation on a date
  */
 
-import MagicDate from "./magic-date";
+import MagicDate from "./index";
 
 /**
  * This DateUtil class is capable of returning multiple permutations to a date
@@ -219,9 +219,9 @@ test("get the first date from a given month", () => {
         year: 2017
     };
 
-    expect(MagicDate.getMonthFirstDate($case1).weekday.name).toBe("Thursday");
-    expect(MagicDate.getMonthFirstDate($case2).weekday.name).toBe("Friday");
-    expect(MagicDate.getMonthFirstDate($case3).weekday.name).toBe("Wednesday");
+    expect(MagicDate.getMonthFirstDate($case1).weekday?.name).toBe("Thursday");
+    expect(MagicDate.getMonthFirstDate($case2).weekday?.name).toBe("Friday");
+    expect(MagicDate.getMonthFirstDate($case3).weekday?.name).toBe("Wednesday");
 });
 
 test("get the last date from a given month", () => {
@@ -232,9 +232,9 @@ test("get the last date from a given month", () => {
         year: 2017
     };
 
-    expect(MagicDate.getMonthLastDate($case1).weekday.name).toBe("Saturday");
-    expect(MagicDate.getMonthLastDate($case2).weekday.name).toBe("Saturday");
-    expect(MagicDate.getMonthLastDate($case3).weekday.name).toBe("Thursday");
+    expect(MagicDate.getMonthLastDate($case1).weekday?.name).toBe("Saturday");
+    expect(MagicDate.getMonthLastDate($case2).weekday?.name).toBe("Saturday");
+    expect(MagicDate.getMonthLastDate($case3).weekday?.name).toBe("Thursday");
 });
 
 test("check if year of a given year or year is a leap year", () => {
